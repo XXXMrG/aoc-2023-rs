@@ -1,56 +1,49 @@
+use regex::Regex;
 use std::{fs, path::Path};
 
-fn match_3_char(input: &str) -> &str {
-    match input {
-        "one" => "1",
-        "two" => "2",
-        "six" => "6",
-        _ => input,
+fn find_normal(input: &str) -> i32 {
+    let re = Regex::new(r"(\d|one|two|three|four|five|six|seven|eight|nine)").unwrap();
+    let result = re.find(input).unwrap();
+
+    match result.as_str() {
+        number if number.chars().count() == 1 => number.parse::<i32>().unwrap(),
+        "one" => 1,
+        "two" => 2,
+        "three" => 3,
+        "four" => 4,
+        "five" => 5,
+        "six" => 6,
+        "seven" => 7,
+        "eight" => 8,
+        "nine" => 9,
+        _ => 0,
     }
 }
 
-fn match_4_char(input: &str) -> &str {
-    match input {
-        "four" => "4",
-        "five" => "5",
-        "nine" => "9",
-        _ => input,
-    }
-}
+fn find_rev(input: &str) -> i32 {
+    let re = Regex::new(r"(\d|enin|thgie|neves|xis|evif|ruof|eerht|owt|eno)").unwrap();
+    let result = re.find(input).unwrap();
 
-fn match_5_char(input: &str) -> &str {
-    match input {
-        "three" => "3",
-        "seven" => "7",
-        "eight" => "8",
-        _ => input,
-    }
-}
-
-fn parse_to_number(input: &str) -> &str {
-    match input.len() {
-        3 => match_3_char(input),
-        4 => match_4_char(input),
-        5 => match_5_char(input),
-        _ => input,
+    match result.as_str() {
+        number if number.chars().count() == 1 => number.parse::<i32>().unwrap(),
+        "eno" => 1,
+        "owt" => 2,
+        "eerht" => 3,
+        "ruof" => 4,
+        "evif" => 5,
+        "xis" => 6,
+        "neves" => 7,
+        "thgie" => 8,
+        "enin" => 9,
+        _ => 0,
     }
 }
 
 fn calibrate(input: &str) -> i32 {
-    // iter is one-time use, so we need to collect it to use it again
-    let chars: Vec<char> = input.chars().collect();
+    let first = find_normal(input);
+    let second = find_rev(&input.chars().rev().collect::<String>());
 
-    let first = chars.iter().find(|&b| b.is_ascii_digit()).clone();
-    if first.is_none() {
-        return 0;
-    }
-
-    let second = chars.iter().rev().find(|&b| b.is_ascii_digit());
-
-    match (first, second) {
-        (Some(first), Some(second)) => format!("{}{}", first, second).parse::<i32>().unwrap(),
-        _ => 0,
-    }
+    first * 10 + second
 }
 
 fn main() {
@@ -59,7 +52,9 @@ fn main() {
     let mut result = 0;
 
     input.lines().for_each(|line| {
-        result += calibrate(line);
+        let res = calibrate(&line);
+        // println!("{} >> {}", line, res);
+        result += res;
     });
 
     println!("{}", result);
